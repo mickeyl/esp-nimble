@@ -490,6 +490,12 @@ ble_l2cap_coc_continue_tx(struct ble_l2cap_chan *chan)
         }
 
         conn = ble_hs_conn_find_assert(chan->conn_handle);
+        if (!conn) {
+            /* The connection has been shutdown in the meantime.
+             * This works around https://github.com/apache/mynewt-nimble/issues/1741
+             */
+            goto failed;
+        }
         rc = ble_l2cap_tx(conn, chan, txom);
 
         if (rc) {
